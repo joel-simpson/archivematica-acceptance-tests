@@ -723,15 +723,17 @@ class ArchivematicaSelenium:
             for block in request.iter_content(1024):
                 f.write(block)
 
-
     def scp_server_file_to_local(self, server_file_path):
         """Use scp to copy a file from the server to our local tmp directory."""
         if SERVER_USER and SERVER_PASSWORD and SSH_ACCESSIBLE:
             filename = os.path.basename(server_file_path)
             local_path = os.path.join(self.tmp_path, filename)
             AM_IP = ''.join([x for x in self.am_url if x in string.digits + '.'])
-            cmd = 'scp -o StrictHostKeyChecking=no {}@{}:{} {}'.format(
-                SERVER_USER, AM_IP, server_file_path, local_path)
+            cmd = ('scp'
+                   ' -o UserKnownHostsFile=/dev/null'
+                   ' -o StrictHostKeyChecking=no'
+                   ' {}@{}:{} {}'.format(
+                    SERVER_USER, AM_IP, server_file_path, local_path))
             child = pexpect.spawn(cmd)
             child.expect('assword:')
             child.sendline(SERVER_PASSWORD)
