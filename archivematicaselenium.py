@@ -1682,47 +1682,30 @@ class ArchivematicaSelenium:
         else:
             return []
 
-    def ensure_fpr_policy_check_command(self, policy_file):
+    def ensure_fpr_policy_check_command(self, policy, policy_file_name):
         """Ensure there is an FPR validation command that checks a file against
-        the MediaConch policy ``policy_file``.
+        the MediaConch policy ``policy`` named ``policy_file_name``.
         """
         self.navigate(self.get_validation_commands_url())
         existing_policy_command_descriptions = \
             self.navigate_to_first_policy_check_validation_command()
-        description = self.get_policy_command_description(policy_file)
+        description = self.get_policy_command_description(policy_file_name)
         if description in existing_policy_command_descriptions:
             # This policy command already exists; no need to re-create it.
             return
-        policy_command = self.get_policy_command(policy_file)
+        policy_command = self.get_policy_command(policy, policy_file_name)
         self.save_policy_check_command(policy_command, description)
 
-    def get_policy_command(self, policy_file):
+    def get_policy_command(self, policy, policy_file_name):
         """Return a string representing a policy check validation command that
-        references the policy file ``policy_file``. Assumes that we are
-        viewing an existing validation-via-mediaconch-policy command.
+        references the policy ``policy``.
         """
-        # Get the text of the command.
-        policy_command = None
-        next_el = False
-        for el in self.driver.find_element_by_tag_name('dl')\
-                             .find_elements_by_css_selector('*'):
-            if next_el:
-                policy_command = el.find_element_by_tag_name('pre')\
-                                        .text.strip()
-                break
-            if el.text.strip() == 'Command':
-                next_el = True
-        # Insert our policy file name into the command text.
-        lines = []
-        for line in policy_command.splitlines():
-            if line.strip().startswith('policy_filename = '):
-                lines.append('    policy_filename = \'{}\''.format(policy_file))
-            else:
-                lines.append(line)
-        return '\n'.join(lines)
+        return POLICY_CHECK_COMMAND_TEMPLATE.format(
+            policy_text=policy,
+            policy_name=policy_file_name)
 
-    def get_policy_command_description(self, policy_file):
-        return 'Check against policy {} using MediaConch'.format(policy_file)
+    def get_policy_command_description(self, policy_file_name):
+        return 'Check against policy {} using MediaConch'.format(policy_file_name)
 
     def save_policy_check_command(self, policy_command, description):
         """Create and save a new FPR command using the string
@@ -1962,6 +1945,9 @@ class ArchivematicaSelenium:
             decision_label='Delete packages after extraction',
             choice_value='Yes')
         self.set_processing_config_decision(
+            decision_label='Perform policy checks on originals',
+            choice_value='No')
+        self.set_processing_config_decision(
             decision_label='Examine contents',
             choice_value='Skip examine contents')
         self.set_processing_config_decision(
@@ -1976,6 +1962,12 @@ class ArchivematicaSelenium:
         self.set_processing_config_decision(
             decision_label='Approve normalization',
             choice_value='None')
+        self.set_processing_config_decision(
+            decision_label='Perform policy checks on preservation derivatives',
+            choice_value='No')
+        self.set_processing_config_decision(
+            decision_label='Perform policy checks on access derivatives',
+            choice_value='No')
         self.set_processing_config_decision(
             decision_label='Reminder: add metadata if desired',
             choice_value='Continue')
@@ -2142,3 +2134,24 @@ class ArchivematicaSelenium:
 
     def unique_name(self, name):
         return '{}_{}'.format(name, self.unixtimestamp())
+
+
+POLICY_CHECK_COMMAND_TEMPLATE = '''
+import sys
+from ammcpc import MediaConchPolicyCheckerCommand
+
+# Valuate this constant with the text (XML) of the policy.
+POLICY = """
+{policy_text}
+""".strip()
+
+# Valuate this constant with the name of the policy.
+POLICY_NAME = '{policy_name}'
+
+if __name__ == '__main__':
+    target = sys.argv[1]
+    policy_checker = MediaConchPolicyCheckerCommand(
+        policy=POLICY,
+        policy_file_name=POLICY_NAME)
+    sys.exit(policy_checker.check(target))
+'''

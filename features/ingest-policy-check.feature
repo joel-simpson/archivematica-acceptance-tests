@@ -11,8 +11,7 @@ Feature: Ingest policy check
     And the processing config decision "Perform policy checks on access derivatives" is set to "Yes"
     And MediaConch policy file <policy_file> is present in the local mediaconch-policies/ directory
     And directory <transfer_path> contains files that, when normalized, will all <do_files_conform> to <policy_file>
-    When the user uploads the policy file <policy_file>
-    And the user ensures there is an FPR command that uses policy file <policy_file>
+    When the user ensures there is an FPR policy check command that uses policy file <policy_file>
     And the user ensures there is an FPR rule with purpose <purpose> that validates Generic MKV files against policy file <policy_file>
     And the user edits the FPR rule to transcode .mkv files to .mkv for access
     And a transfer is initiated on directory <transfer_path>
@@ -33,12 +32,12 @@ Feature: Ingest policy check
     Then the submissionDocumentation directory of the AIP does not contain a copy of the MediaConch policy file <policy_file>
 
     Examples: Policy Check Outcomes
-    | do_files_conform | microservice_output    | event_outcome  | verification_result | transfer_path                          | policy_file                       | purpose                                           |
-    | conform          | Completed successfully | pass           | successful          | preforma/all-conform-policy-norm-acc   | NYULib_MKVFFV1_MODIFIED.xml       | Validation of Access Derivatives against a Policy |
-    | not conform      | Failed                 | fail           | failed              | preforma/none-conform-policy-norm-acc  | NYULib_MKVFFV1_MODIFIED.xml       | Validation of Access Derivatives against a Policy |
+    | do_files_conform | microservice_output    | event_outcome  | verification_result | transfer_path                          | policy_file                       | purpose                     |
+    | conform          | Completed successfully | pass           | successful          | preforma/all-conform-policy-norm-acc   | NYULib_MKVFFV1_MODIFIED.xml       | Validation against a Policy |
+    | not conform      | Failed                 | fail           | failed              | preforma/none-conform-policy-norm-acc  | NYULib_MKVFFV1_MODIFIED.xml       | Validation against a Policy |
     # Uncomment the following two rows to test on the equivalent MediaConch .xsl policy files
-    #| conform          | Completed successfully | pass           | successful          | preforma/all-conform-policy-norm-acc   | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation of Access Derivatives against a Policy |
-    #| not conform      | Failed                 | fail           | failed              | preforma/none-conform-policy-norm-acc  | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation of Access Derivatives against a Policy |
+    #| conform          | Completed successfully | pass           | successful          | preforma/all-conform-policy-norm-acc   | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation against a Policy |
+    #| not conform      | Failed                 | fail           | failed              | preforma/none-conform-policy-norm-acc  | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation against a Policy |
 
   @preforma @ipc @preservation @nonmanual
   Scenario Outline: Isla has preservation derivatives and she needs to know whether they conform to her preservation policy
@@ -46,8 +45,7 @@ Feature: Ingest policy check
     And the processing config decision "Perform policy checks on preservation derivatives" is set to "Yes"
     And MediaConch policy file <policy_file> is present in the local mediaconch-policies/ directory
     And directory <transfer_path> contains files that, when normalized, will all <do_files_conform> to <policy_file>
-    When the user uploads the policy file <policy_file>
-    And the user ensures there is an FPR command that uses policy file <policy_file>
+    When the user ensures there is an FPR policy check command that uses policy file <policy_file>
     And the user ensures there is an FPR rule with purpose <purpose> that validates Generic MKV files against policy file <policy_file>
     And a transfer is initiated on directory <transfer_path>
     And the user waits for the "Select file format identification command" decision point to appear and chooses "Identify using Fido" during transfer
@@ -68,12 +66,12 @@ Feature: Ingest policy check
     And the logs directory of the AIP contains a MediaConch policy check output file for each policy file tested against <policy_file>
 
     Examples: Policy Check Outcomes
-    | do_files_conform | microservice_output    | event_outcome  | verification_result | transfer_path                | policy_file                       | purpose                                                 |
-    | conform          | Completed successfully | pass           | successful          | preforma/all-conform-policy  | NYULib_MKVFFV1_MODIFIED.xml       | Validation of Preservation Derivatives against a Policy |
-    | not conform      | Failed                 | fail           | failed              | preforma/none-conform-policy | NYULib_MKVFFV1_MODIFIED.xml       | Validation of Preservation Derivatives against a Policy |
+    | do_files_conform | microservice_output    | event_outcome  | verification_result | transfer_path                | policy_file                       | purpose                     |
+    | conform          | Completed successfully | pass           | successful          | preforma/all-conform-policy  | NYULib_MKVFFV1_MODIFIED.xml       | Validation against a Policy |
+    | not conform      | Failed                 | fail           | failed              | preforma/none-conform-policy | NYULib_MKVFFV1_MODIFIED.xml       | Validation against a Policy |
     # Uncomment the following two rows to test on the equivalent MediaConch .xsl policy files
-    #| conform          | Completed successfully | pass           | successful          | preforma/all-conform-policy  | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation of Preservation Derivatives against a Policy |
-    #| not conform      | Failed                 | fail           | failed              | preforma/none-conform-policy | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation of Preservation Derivatives against a Policy |
+    #| conform          | Completed successfully | pass           | successful          | preforma/all-conform-policy  | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation against a Policy |
+    #| not conform      | Failed                 | fail           | failed              | preforma/none-conform-policy | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation against a Policy |
 
   @preforma @ipc @preservation @manual
   Scenario Outline: Isla has manually normalized preservation derivatives and she needs to know whether they conform to her preservation policy
@@ -81,8 +79,7 @@ Feature: Ingest policy check
     And the processing config decision "Perform policy checks on preservation derivatives" is set to "Yes"
     And MediaConch policy file <policy_file> is present in the local mediaconch-policies/ directory
     And directory <transfer_path>/manualNormalization/preservation/ contains a file manually normalized for preservation that will <do_files_conform> to <policy_file>
-    When the user uploads the policy file <policy_file>
-    And the user ensures there is an FPR command that uses policy file <policy_file>
+    When the user ensures there is an FPR policy check command that uses policy file <policy_file>
     And the user ensures there is an FPR rule with purpose <purpose> that validates Generic MKV files against policy file <policy_file>
     And a transfer is initiated on directory <transfer_path>
     And the user waits for the "Select file format identification command" decision point to appear and chooses "Identify using Fido" during transfer
@@ -103,11 +100,11 @@ Feature: Ingest policy check
     And the logs directory of the AIP contains a MediaConch policy check output file for each policy file tested against <policy_file>
 
     Examples: Policy Check Outcomes
-    | do_files_conform | microservice_output    | event_outcome  | verification_result | transfer_path                                                  | policy_file                       | purpose                                                 |
-    | conform          | Completed successfully | pass           | successful          | preforma/manually-normalized-preservation-all-conform-policy   | NYULib_MKVFFV1_MODIFIED.xml       | Validation of Preservation Derivatives against a Policy |
-    | not conform      | Failed                 | fail           | failed              | preforma/manually-normalized-preservation-none-conform-policy  | NYULib_MKVFFV1_MODIFIED.xml       | Validation of Preservation Derivatives against a Policy |
-    #| conform          | Completed successfully | pass           | successful          | preforma/manually-normalized-preservation-all-conform-policy   | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation of Preservation Derivatives against a Policy |
-    #| not conform      | Failed                 | fail           | failed              | preforma/manually-normalized-preservation-none-conform-policy  | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation of Preservation Derivatives against a Policy |
+    | do_files_conform | microservice_output    | event_outcome  | verification_result | transfer_path                                                  | policy_file                       | purpose                     |
+    | conform          | Completed successfully | pass           | successful          | preforma/manually-normalized-preservation-all-conform-policy   | NYULib_MKVFFV1_MODIFIED.xml       | Validation against a Policy |
+    | not conform      | Failed                 | fail           | failed              | preforma/manually-normalized-preservation-none-conform-policy  | NYULib_MKVFFV1_MODIFIED.xml       | Validation against a Policy |
+    #| conform          | Completed successfully | pass           | successful          | preforma/manually-normalized-preservation-all-conform-policy   | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation against a Policy |
+    #| not conform      | Failed                 | fail           | failed              | preforma/manually-normalized-preservation-none-conform-policy  | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation against a Policy |
 
   @preforma @ipc @access @manual
   Scenario Outline: Isla has manually normalized access derivatives and she needs to know whether they conform to her access policy
@@ -115,8 +112,7 @@ Feature: Ingest policy check
     And the processing config decision "Perform policy checks on access derivatives" is set to "Yes"
     And MediaConch policy file <policy_file> is present in the local mediaconch-policies/ directory
     And directory <transfer_path>/manualNormalization/access/ contains a file manually normalized for access that will <do_files_conform> to <policy_file>
-    When the user uploads the policy file <policy_file>
-    And the user ensures there is an FPR command that uses policy file <policy_file>
+    When the user ensures there is an FPR policy check command that uses policy file <policy_file>
     And the user ensures there is an FPR rule with purpose <purpose> that validates Generic MKV files against policy file <policy_file>
     # Necessary?: And the user edits the FPR rule to transcode .mkv files to .mkv for access
     And a transfer is initiated on directory <transfer_path>
@@ -137,8 +133,8 @@ Feature: Ingest policy check
     Then the submissionDocumentation directory of the AIP does not contain a copy of the MediaConch policy file <policy_file>
 
     Examples: Policy Check Outcomes
-    | do_files_conform | microservice_output    | event_outcome  | verification_result | transfer_path                                            | policy_file                       | purpose                                           |
-    | conform          | Completed successfully | pass           | successful          | preforma/manually-normalized-access-all-conform-policy   | NYULib_MKVFFV1_MODIFIED.xml       | Validation of Access Derivatives against a Policy |
-    | not conform      | Failed                 | fail           | failed              | preforma/manually-normalized-access-none-conform-policy  | NYULib_MKVFFV1_MODIFIED.xml       | Validation of Access Derivatives against a Policy |
-    #| conform          | Completed successfully | pass           | successful          | preforma/manually-normalized-access-all-conform-policy   | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation of Access Derivatives against a Policy |
-    #| not conform      | Failed                 | fail           | failed              | preforma/manually-normalized-access-none-conform-policy  | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation of Access Derivatives against a Policy |
+    | do_files_conform | microservice_output    | event_outcome  | verification_result | transfer_path                                            | policy_file                       | purpose                     |
+    | conform          | Completed successfully | pass           | successful          | preforma/manually-normalized-access-all-conform-policy   | NYULib_MKVFFV1_MODIFIED.xml       | Validation against a Policy |
+    | not conform      | Failed                 | fail           | failed              | preforma/manually-normalized-access-none-conform-policy  | NYULib_MKVFFV1_MODIFIED.xml       | Validation against a Policy |
+    #| conform          | Completed successfully | pass           | successful          | preforma/manually-normalized-access-all-conform-policy   | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation against a Policy |
+    #| not conform      | Failed                 | fail           | failed              | preforma/manually-normalized-access-none-conform-policy  | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation against a Policy |

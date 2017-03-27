@@ -1,4 +1,3 @@
-import filecmp
 import json
 import os
 import pprint
@@ -118,7 +117,11 @@ def step_impl(context, contains, policy_file):
         assert os.path.isfile(original_policy_path)
         assert os.path.isfile(aip_policy_path), ('There is no MediaConch policy'
             ' file in the AIP at {}!'.format(aip_policy_path))
-        assert filecmp.cmp(original_policy_path, aip_policy_path)
+        with open(original_policy_path) as file1:
+            with open(aip_policy_path) as file2:
+                assert file1.read().strip() == file2.read().strip(), ('Both'
+                    ' files exist but they are not identical.')
+
     else:
         assert not os.path.isfile(aip_policy_path), ('There is a MediaConch policy'
             ' file in the AIP at {} but there shouldn\'t be!'.format(
@@ -140,7 +143,11 @@ def step_impl(context, contains, policy_file):
         assert os.path.isfile(original_policy_path)
         assert os.path.isfile(aip_policy_path), ('There is no MediaConch policy'
             ' file in the AIP at {}!'.format(aip_policy_path))
-        assert filecmp.cmp(original_policy_path, aip_policy_path)
+        with open(original_policy_path) as file1:
+            with open(aip_policy_path) as file2:
+                assert file1.read().strip() == file2.read().strip(), ('Both'
+                    ' files exist but they are not identical.')
+
     else:
         assert not os.path.isfile(aip_policy_path), ('There is a MediaConch policy'
             ' file in the AIP at {} but there shouldn\'t be!'.format(
@@ -561,16 +568,13 @@ def step_impl(context, transfer_path, do_files_conform, policy_file):
     pass
 
 
-@when('the user uploads the policy file {policy_file}')
-def step_impl(context, policy_file):
-    policy_path = get_policy_path(policy_file)
-    context.am_sel_cli.upload_policy(policy_path)
 
-
-@when('the user ensures there is an FPR command that uses policy file'
-      ' {policy_file}')
+@when('the user ensures there is an FPR policy check command that uses policy'
+      ' file {policy_file}')
 def step_impl(context, policy_file):
-    context.am_sel_cli.ensure_fpr_policy_check_command(policy_file)
+    with open(os.path.join(POLICIES_DIR, policy_file)) as filei:
+        policy = filei.read()
+    context.am_sel_cli.ensure_fpr_policy_check_command(policy, policy_file)
 
 
 # TODO: this step could be generalized to support any purpose/format/command

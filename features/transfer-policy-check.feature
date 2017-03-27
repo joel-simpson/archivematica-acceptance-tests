@@ -9,8 +9,7 @@ Feature: Transfer policy check
     And the processing config decision "Perform policy checks on originals" is set to "Yes"
     And MediaConch policy file <policy_file> is present in the local mediaconch-policies/ directory
     And directory <transfer_path> contains files that all do <do_files_conform> to <policy_file>
-    When the user uploads the policy file <policy_file>
-    And the user ensures there is an FPR command that uses policy file <policy_file>
+    When the user ensures there is an FPR policy check command that uses policy file <policy_file>
     And the user ensures there is an FPR rule with purpose <purpose> that validates Generic MKV files against policy file <policy_file>
     And a transfer is initiated on directory <transfer_path>
     And the user waits for the "Select file format identification command" decision point to appear and chooses "Identify using Fido" during transfer
@@ -30,6 +29,6 @@ Feature: Transfer policy check
     Then the transfer logs directory of the AIP contains a MediaConch policy check output file for each policy file tested against <policy_file>
 
  Examples: Policy Check Outcomes
-    | do_files_conform | microservice_output    | event_outcome  | verification_result | transfer_path                          | policy_file                       | purpose                                  |
-    | conform          | Completed successfully | pass           | successful          | preforma/all-conform-policy-originals  | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation of Originals against a Policy |
-    | not conform      | Failed                 | fail           | failed              | preforma/none-conform-policy-originals | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation of Originals against a Policy |
+    | do_files_conform | microservice_output    | event_outcome  | verification_result | transfer_path                          | policy_file                       | purpose                     |
+    | conform          | Completed successfully | pass           | successful          | preforma/all-conform-policy-originals  | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation against a Policy |
+    | not conform      | Failed                 | fail           | failed              | preforma/none-conform-policy-originals | NYULibraries_MKVFFV1-MODIFIED.xsl | Validation against a Policy |
